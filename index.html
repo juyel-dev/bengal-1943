@@ -75,7 +75,11 @@ var ix=rnd(-150,150),iz=rnd(-185,175);if(Math.abs(iz+60)<10)iz+=20;g.position.se
 [[[8,135],0],[[-40,90],1],[[50,15],0],[[-25,-100],1]].forEach(function(a){var m=mk(a[1]?0xa05a6a:0x7a5230,0xe8e0cf,a[1]?0:0xe8dcb0,{dh:0xe8e0cf,hair:a[1]?0x222222:0x555555});npcs.push({m:m,x:a[0][0],z:a[0][1],i:0,g:0,t:a[1]})});
 var NL=[['ঘরে চাল নেই বাবা, সব নিয়ে গেছে...','এই নাও একটু ভাত। কলকাতা উত্তরে, নদী পেরিয়ে যেও।'],['সৈন্যরা এই মাঠে টহল দেয়। C চেপে নিচু হয়ে চলো, ওরা কম দেখবে।','এই জলটুকু নাও, তোমার বেশি দরকার।']];
 for(i=0;i<7;i++){var sx=rnd(-100,100),sz=i<3?rnd(60,130):rnd(-150,-80);sol.push({m:mk(0x6b6b3a,0x4a4a2a,0x5a5a3a,{gun:1}),x:sx,z:sz,rot:0,a:{x:sx,z:sz},b:{x:sx+rnd(-30,30),z:sz+rnd(-30,30)},tg:1,ch:0,stun:0,cd:0,x0:sx,z0:sz})}
+for(i=0;i<2;i++){var ox=rnd(-60,60),oz=rnd(-150,-95),om=mk(0x3a3a6b,0x2a2a4a,0x1a1a3a,{gun:1});om.g.scale.setScalar(1.12);sol.push({m:om,x:ox,z:oz,rot:0,a:{x:ox,z:oz},b:{x:ox+rnd(-25,25),z:oz+rnd(-25,25)},tg:1,ch:0,stun:0,cd:0,x0:ox,z0:oz,cs:8.2,vr:42,off:1})}
 for(i=0;i<6;i++){var hx=rnd(-100,100),hz=rnd(-130,130);thi.push({m:mk(0x6a3a2a,0x222222,0xaa3333),x:hx,z:hz,rot:0,fl:0,x0:hx,z0:hz})}
+function dogm(){var g=new T.Group(),bd=new T.Mesh(new T.BoxGeometry(.45,.5,1.1),M(0x8a6a3a));bd.position.y=.7;bd.castShadow=true;var hd=new T.Mesh(new T.BoxGeometry(.35,.35,.4),M(0x7a5a2a));hd.position.set(0,.95,.7);var tl=new T.Mesh(new T.BoxGeometry(.1,.1,.5),M(0x7a5a2a));tl.position.set(0,.9,-.75);tl.rotation.x=-.5;g.add(bd,hd,tl);
+var lg=[-.4,.4].map(function(z){var l=new T.Mesh(new T.BoxGeometry(.4,.45,.12),M(0x6a4a22));l.geometry.translate(0,-.22,0);l.position.set(0,.5,z);g.add(l);return l});S.add(g);return{g:g,l:lg}}
+for(i=0;i<5;i++){var dx0=rnd(-90,90),dz0=rnd(-170,100);if(Math.abs(dz0+60)<12)dz0+=25;thi.push({m:dogm(),x:dx0,z:dz0,rot:0,fl:0,x0:dx0,z0:dz0,dog:1})}
 var gl=new T.Mesh(new T.CylinderGeometry(2,2,80,16,1,true),new T.MeshBasicMaterial({color:0xffd98a,transparent:true,opacity:.3,side:2}));gl.position.set(0,40,-170);S.add(gl);
 var cv=document.createElement('canvas');cv.width=256;cv.height=64;var cx=cv.getContext('2d');cx.fillStyle='#e8dcb0';cx.fillRect(0,0,256,64);cx.fillStyle='#3b2a18';cx.font='700 34px "Noto Sans Bengali",sans-serif';cx.textAlign='center';cx.fillText('কলকাতা',128,44);
 var sn=new T.Mesh(new T.PlaneGeometry(6,1.5),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv),side:2}));sn.position.set(0,7,-170);S.add(sn);
@@ -95,7 +99,7 @@ function talk(){npcs.forEach(function(n){if(Math.hypot(P.x-n.x,P.z-n.z)<4){say(N
 function atk(){if(P.at>0)return;P.at=.3;snd(130,.1,'square');var fx=Math.sin(P.rot),fz=Math.cos(P.rot);
 function inF(e){var dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz);return d<3.6&&(dx*fx+dz*fz)/d>.2}
 thi.forEach(function(t){if(!t.fl&&inF(t)){t.fl=1;shake=.3;say('চোর পালাল!')}});
-sol.forEach(function(s){if(inF(s)){s.stun=2.5;s.ch=0;s.cd=2;shake=.4;snd(90,.2,'square');say('সৈন্য টলে গেল! পালাও!')}})}
+sol.forEach(function(s){if(inF(s)){s.stun=s.off?1.5:2.5;s.ch=0;s.cd=2;shake=.4;snd(90,.2,'square');say('সৈন্য টলে গেল! পালাও!')}})}
 function thr(){if(P.sn<=0){say('পাথর শেষ!');return}P.sn--;var tx=P.x+Math.sin(yaw)*18,tz=P.z+Math.cos(yaw)*18,m=new T.Mesh(new T.DodecahedronGeometry(.25),M(0x888888));m.position.set(tx,Ht(tx,tz)+.25,tz);S.add(m);
 setTimeout(function(){snd(220,.08,'square');sol.forEach(function(s){if(!s.ch&&s.stun<=0&&Math.hypot(s.x-tx,s.z-tz)<35)s.lure={x:tx,z:tz,t:5}});say('পাথরের শব্দে সৈন্যরা সেদিকে গেল')},400);setTimeout(function(){S.remove(m)},6000)}
 function mv(e,dx,dz,sp,dt){e.x+=dx*sp*dt;e.z+=dz*sp*dt;e.rot=Math.atan2(dx,dz);var w=Math.sin(clock.elapsedTime*sp*1.6)*.7;e.m.l[0].rotation.x=w;e.m.l[1].rotation.x=-w;if(e.m.al){e.m.a.rotation.x=-w*.6;e.m.al.rotation.x=w*.6}}
@@ -117,13 +121,13 @@ if(P.fd<=0||P.wt<=0)P.hp-=3*dt;
 items.forEach(function(a){if(a.on){a.m.rotation.y+=dt*2;if(Math.hypot(P.x-a.x,P.z-a.z)<1.8&&Math.abs(P.y-Ht(a.x,a.z))<2){a.on=0;a.m.visible=false;if(a.k==2){P.sn+=2;say('পাথর পেলে (G দিয়ে ছোড়ো)')}else if(a.k){P.wt=Math.min(100,P.wt+35);say('জল পেলে')}else{P.fd=Math.min(100,P.fd+30);say('ভাত পেলে')}snd(600,.12)}}});
 thi.forEach(function(t){var ax=P.x-t.x,az=P.z-t.z,d=Math.hypot(ax,az)||1;
 if(t.fl){mv(t,-ax/d,-az/d,7,dt);if(d>90){t.fl=0;t.x=t.x0;t.z=t.z0}}
-else if(d<28)mv(t,ax/d,az/d,4.6,dt);
-if(!t.fl&&d<1.3){P.fd=Math.max(0,P.fd-25);t.fl=1;say('চোর খাবার নিয়ে পালাল!');snd(150,.3,'sawtooth')}});
+else if(d<(t.dog?34:28))mv(t,ax/d,az/d,t.dog?7.4:4.6,dt);
+if(!t.fl&&d<1.3){if(t.dog){if(P.inv<=0){hurt(8,ax/d,az/d);say('কুকুর কামড়ে দিল! F দিয়ে তাড়াও');t.fl=1}}else{P.fd=Math.max(0,P.fd-25);t.fl=1;say('চোর খাবার নিয়ে পালাল!');snd(150,.3,'sawtooth')}}});
 sol.forEach(function(s){var ax=P.x-s.x,az=P.z-s.z,d=Math.hypot(ax,az)||1;s.cd-=dt;
 if(s.stun>0){s.stun-=dt}else{
-if(s.ch){if(d>60)s.ch=0;else mv(s,ax/d,az/d,6.2,dt)}
+if(s.ch){if(d>60)s.ch=0;else mv(s,ax/d,az/d,s.cs||6.2,dt)}
 else{var lu=s.lure&&s.lure.t>0,tg=lu?s.lure:(s.tg?s.b:s.a),tx=tg.x-s.x,tz=tg.z-s.z,td=Math.hypot(tx,tz)||1;if(lu)s.lure.t-=dt;if(td<1.5&&!lu)s.tg=1-s.tg;if(td>1.5)mv(s,tx/td,tz/td,lu?3.4:1.8,dt);
-if(s.cd<=0&&d<(P.cr?12:32)&&Math.abs(wr(Math.atan2(ax,az)-s.rot))<1){s.ch=1;say('সৈন্য দেখে ফেলেছে! দৌড়াও (Shift)!');snd(190,.3,'sawtooth')}}
+if(s.cd<=0&&d<(P.cr?12:(s.vr||32))&&Math.abs(wr(Math.atan2(ax,az)-s.rot))<1){s.ch=1;say(s.off?'অফিসার দেখে ফেলেছে! সে খুব দ্রুত, পাথর ছোড়ো বা লুকাও!':'সৈন্য দেখে ফেলেছে! দৌড়াও (Shift)!');snd(190,.3,'sawtooth')}}
 if(d<1.5&&s.cd<=0&&P.inv<=0){hurt(20,ax/d,az/d);s.ch=0;s.cd=3}}});
 if(ci<CP.length-1&&P.z<CP[ci+1]){ci++;cpx=P.x;cpz=P.z;say('চেকপয়েন্ট ✔ (মরলে এখান থেকে শুরু)')}
 B.forEach(function(b){if(!b[2]&&P.z<b[0]){b[2]=1;say(b[1])}});
