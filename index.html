@@ -14,6 +14,8 @@ canvas{display:block}
 .b i{position:absolute;left:0;top:0;bottom:0;display:block}.b span{position:relative;padding-left:6px;line-height:14px}
 #msg{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:8px 16px;border-radius:8px;font-weight:700;display:none;max-width:70%;text-align:center}
 #dist{position:fixed;right:16px;top:calc(14px + env(safe-area-inset-top,0px));font-weight:700;background:rgba(0,0,0,.5);padding:6px 12px;border-radius:8px}
+.bt{background:#e8c35a;color:#1d1408;border:0;border-radius:8px;padding:10px 20px;font-weight:700;font-size:16px;font-family:inherit;cursor:pointer;margin:6px}
+#ps label{display:block;font-size:16px}
 #fl{position:fixed;inset:0;background:#c00;opacity:0;pointer-events:none}
 #ov{position:fixed;inset:0;background:rgba(10,7,4,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;cursor:pointer}
 #ov h1{font-size:46px;color:#e8c35a;margin:0 0 14px}#ov p{margin:5px 0;font-size:18px}.k{color:#b9a97f;font-size:15px!important}
@@ -24,11 +26,19 @@ canvas{display:block}
 <p>২০২৬ সাল। ছাত্র অয়নের time machine ভুল সময়ে থেমে গেল।</p>
 <p>চারদিকে দুর্ভিক্ষ। সৈন্যরা মাঠে টহল দিচ্ছে, চোররা ঘুরছে।</p>
 <p>লক্ষ্য: বেঁচে থেকে নদী পেরিয়ে কলকাতার আলোর দিকে পৌঁছানো।</p>
-<p class="k">WASD চলা · Shift দৌড় · Space লাফ · C নিচু হওয়া · F আঘাত · G পাথর ছোড়া · E কথা · Mouse ঘোরা</p>
-<p style="color:#e8c35a;margin-top:18px">শুরু করতে click করো</p></div>
+<p class="k">WASD চলা · Shift দৌড় · Space লাফ · C নিচু হওয়া · F আঘাত · G পাথর ছোড়া · E কথা · Mouse ঘোরা · Esc বিরতি</p>
+<div id="sv"></div><p style="color:#e8c35a;margin-top:18px">নতুন game শুরু করতে click করো</p></div>
+<div id="ps" style="display:none;position:fixed;inset:0;background:rgba(10,7,4,.88);align-items:center;justify-content:center;flex-direction:column;gap:12px;text-align:center">
+<h1 style="color:#e8c35a;margin:0">বিরতি</h1>
+<label>মাউস সংবেদনশীলতা <input type="range" id="rs" min=".4" max="2" step=".1"></label>
+<label>শব্দ <input type="range" id="rv2" min="0" max="1" step=".05"></label>
+<label><input type="checkbox" id="rl"> হালকা graphics (ধীর laptop-এর জন্য)</label>
+<div><button class="bt" id="rr">চালিয়ে যাও</button><button class="bt" id="rx">নতুন করে শুরু</button></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 var T=THREE,$=function(i){return document.getElementById(i)};
+var cfg={sens:1,vol:.8,low:0};try{Object.assign(cfg,JSON.parse(localStorage.getItem('b43cfg')||'{}'))}catch(e){}
+function saveCfg(){try{localStorage.setItem('b43cfg',JSON.stringify(cfg))}catch(e){}}
 var R=new T.WebGLRenderer({antialias:true});R.setSize(innerWidth,innerHeight);R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;document.body.appendChild(R.domElement);
 var S=new T.Scene(),C=new T.PerspectiveCamera(65,innerWidth/innerHeight,.1,300);
 addEventListener('resize',function(){R.setSize(innerWidth,innerHeight);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()});
@@ -70,7 +80,7 @@ S.add(g);return{g:g,l:lg,a:ar,al:al}}
 var P={m:mk(0x2f6fb5,0x34405a,0,{bag:1}),x:0,z:150,y:0,vy:0,rot:0,hp:100,fd:90,wt:90,cr:0,at:0,inv:0,st:100,sn:5},tm=0;
 var CP=[150,80,-20,-110],ci=0,cpx=0,cpz=150,deaths=0,ft=0,ambOn=0,B=[[120,'দূরে একটা গ্রাম দেখা যাচ্ছে। ওখানে কেউ সাহায্য করতে পারে।'],[40,'মাঠে সৈন্যদের টহল। সাবধান, নিচু হয়ে চলো...'],[-45,'সামনে নদী। জল খেয়ে নাও, তারপর পার হও।'],[-125,'কলকাতার আলো দেখা যাচ্ছে। আর একটু!']];
 var B1=B.map(function(b){return b.slice()});
-function amb(){try{AC=AC||new AudioContext();var b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;var s=AC.createBufferSource();s.buffer=b;s.loop=true;var f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=400;var g=AC.createGain();g.gain.value=.05;s.connect(f);f.connect(g);g.connect(AC.destination);s.start();[55,82.5].forEach(function(fr){var o=AC.createOscillator(),gg=AC.createGain();o.type='triangle';o.frequency.value=fr;gg.gain.value=.025;o.connect(gg);gg.connect(AC.destination);o.start()})}catch(e){}}
+function amb(){try{AC=AC||new AudioContext();var b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1;var s=AC.createBufferSource();s.buffer=b;s.loop=true;var f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=400;var g=AC.createGain();g.gain.value=.05;s.connect(f);f.connect(g);g.connect(MG());s.start();[55,82.5].forEach(function(fr){var o=AC.createOscillator(),gg=AC.createGain();o.type='triangle';o.frequency.value=fr;gg.gain.value=.025;o.connect(gg);gg.connect(MG());o.start()})}catch(e){}}
 var items=[],npcs=[],sol=[],thi=[],st='intro',yaw=Math.PI,pt=.35,clock=new T.Clock(),msgT=0,shake=0,keys={},AC;
 for(i=0;i<48;i++){var k=i%3,g=new T.Mesh(k==1?new T.SphereGeometry(.4,10,8):k==2?new T.DodecahedronGeometry(.3):new T.CylinderGeometry(.4,.3,.35,10),M(k==1?0xa8602f:k==2?0x888888:0xf4efe0));
 var ix=rnd(-150,150),iz=rnd(-185,175);if(Math.abs(iz+60)<10)iz+=20;g.position.set(ix,Ht(ix,iz)+.5,iz);S.add(g);items.push({m:g,k:k,on:1,x:ix,z:iz})}
@@ -85,18 +95,19 @@ for(i=0;i<5;i++){var dx0=rnd(-90,90),dz0=rnd(-170,100);if(Math.abs(dz0+60)<12)dz
 var gl=new T.Mesh(new T.CylinderGeometry(2,2,80,16,1,true),new T.MeshBasicMaterial({color:0xffd98a,transparent:true,opacity:.3,side:2}));gl.position.set(0,40,-170);S.add(gl);
 var cv=document.createElement('canvas');cv.width=256;cv.height=64;var cx=cv.getContext('2d');cx.fillStyle='#e8dcb0';cx.fillRect(0,0,256,64);cx.fillStyle='#3b2a18';cx.font='700 34px "Noto Sans Bengali",sans-serif';cx.textAlign='center';cx.fillText('কলকাতা',128,44);
 var sn=new T.Mesh(new T.PlaneGeometry(6,1.5),new T.MeshBasicMaterial({map:new T.CanvasTexture(cv),side:2}));sn.position.set(0,7,-170);S.add(sn);
-function snd(f,d,ty){try{AC=AC||new AudioContext();var o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=.07;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function MG(){if(!MG.n){MG.n=AC.createGain();MG.n.gain.value=cfg.vol;MG.n.connect(AC.destination)}return MG.n}
+function snd(f,d,ty){try{AC=AC||new AudioContext();var o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=.07;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(MG());o.start();o.stop(AC.currentTime+d)}catch(e){}}
 function say(m){var e=$('msg');e.textContent=m;e.style.display='block';msgT=4}
 function reset(){Object.assign(P,{x:0,z:150,vy:0,hp:100,fd:90,wt:90,cr:0,at:0,inv:0,st:100,sn:5});tm=0;CP=[150,80,-20,-110];B=B1.map(function(b){return[b[0],b[1],0]});ci=0;cpx=0;cpz=150;deaths=0;yaw=Math.PI;
 ch=0;WLD.concat([gr,rv,gl,sn,gm]).forEach(function(v){v.visible=true});if(CG)CG.visible=false;cn.forEach(function(n){n.m.g.visible=false});
 items.forEach(function(a){a.on=1;a.m.visible=true;if(a.o){a.x=a.o[0];a.z=a.o[1];a.m.position.set(a.x,Ht(a.x,a.z)+.5,a.z)}});npcs.forEach(function(a){a.i=0;a.g=0;a.m.g.visible=true});
 sol.forEach(function(s){s.x=s.x0;s.z=s.z0;s.ch=0;s.stun=0;s.cd=0;s.lure=null;if(s.o){s.a=s.o.a;s.b=s.o.b}});thi.forEach(function(t){t.x=t.x0;t.z=t.z0;t.fl=0});say('এগোও, উত্তরের আলোর দিকে।')}
-function go(){if(st=='play')return;if(!ambOn){ambOn=1;amb()}reset();st='play';$('ov').style.display='none';try{R.domElement.requestPointerLock()}catch(e){}}
+function go(){if(st=='play')return;if(!ambOn){ambOn=1;amb()}reset();applyG();st='play';$('ov').style.display='none';try{R.domElement.requestPointerLock()}catch(e){}}
 $('ov').onclick=go;
-addEventListener('keydown',function(e){keys[e.code]=1;if(['Space','ArrowUp','ArrowDown'].indexOf(e.code)>-1)e.preventDefault();
-if(st!='play'){if(e.code=='Enter')go();return}if(e.code=='KeyE')talk();if(e.code=='KeyF')atk();if(e.code=='KeyG')thr()});
+addEventListener('keydown',function(e){keys[e.code]=1;if(e.code=='Escape'){st=='play'?pauseG():st=='pause'&&resumeG();return}if(['Space','ArrowUp','ArrowDown'].indexOf(e.code)>-1)e.preventDefault();
+if(st!='play'){if(e.code=='Enter'&&st!='pause')go();return}if(e.code=='KeyE')talk();if(e.code=='KeyF')atk();if(e.code=='KeyG')thr()});
 addEventListener('keyup',function(e){keys[e.code]=0});
-addEventListener('mousemove',function(e){if(document.pointerLockElement){yaw-=e.movementX*.0025;pt=Math.max(.05,Math.min(1,pt+e.movementY*.002))}});
+addEventListener('mousemove',function(e){if(document.pointerLockElement){yaw-=e.movementX*.0025*cfg.sens;pt=Math.max(.05,Math.min(1,pt+e.movementY*.002*cfg.sens))}});
 R.domElement.addEventListener('mousedown',function(){if(st!='play')return;document.pointerLockElement?atk():R.domElement.requestPointerLock()});
 function talk(){if(ch){cn.forEach(function(n){if(Math.hypot(P.x-n.x,P.z-n.z)>4)return;if(n.g){say('ধন্যবাদ বাবা...');return}if(P.fd<20){say('তোমার নিজের খাবারও প্রায় নেই...');return}n.g=1;P.fd-=15;helped++;say('তুমি খাবার ভাগ করলে ('+helped+' জন)');snd(520,.15)});return}npcs.forEach(function(n){if(Math.hypot(P.x-n.x,P.z-n.z)<4){say(NL[n.t][n.i]);if(n.i==1&&!n.g){n.g=1;n.t?P.wt=Math.min(100,P.wt+45):P.fd=Math.min(100,P.fd+45);snd(520,.15)}n.i=1}})}
 function atk(){if(P.at>0)return;P.at=.3;snd(130,.1,'square');var fx=Math.sin(P.rot),fz=Math.cos(P.rot);
@@ -132,7 +143,7 @@ if(s.ch){if(d>60)s.ch=0;else mv(s,ax/d,az/d,s.cs||6.2,dt)}
 else{var lu=s.lure&&s.lure.t>0,tg=lu?s.lure:(s.tg?s.b:s.a),tx=tg.x-s.x,tz=tg.z-s.z,td=Math.hypot(tx,tz)||1;if(lu)s.lure.t-=dt;if(td<1.5&&!lu)s.tg=1-s.tg;if(td>1.5)mv(s,tx/td,tz/td,lu?3.4:1.8,dt);
 if(s.cd<=0&&d<(P.cr?12:(s.vr||32))&&Math.abs(wr(Math.atan2(ax,az)-s.rot))<1){s.ch=1;say(s.off?'অফিসার দেখে ফেলেছে! সে খুব দ্রুত, পাথর ছোড়ো বা লুকাও!':'সৈন্য দেখে ফেলেছে! দৌড়াও (Shift)!');snd(190,.3,'sawtooth')}}
 if(d<1.5&&s.cd<=0&&P.inv<=0){hurt(20,ax/d,az/d);s.ch=0;s.cd=3}}});
-if(ci<CP.length-1&&P.z<CP[ci+1]){ci++;cpx=P.x;cpz=P.z;say('চেকপয়েন্ট ✔ (মরলে এখান থেকে শুরু)')}
+if(ci<CP.length-1&&P.z<CP[ci+1]){ci++;cpx=P.x;cpz=P.z;say('চেকপয়েন্ট ✔ (মরলে এখান থেকে শুরু)');svWrite()}
 B.forEach(function(b){if(!b[2]&&P.z<b[0]){b[2]=1;say(b[1])}});
 msgT-=dt;if(msgT<0)$('msg').style.display='none';
 $('fl').style.opacity=Math.max(0,+$('fl').style.opacity-dt);
@@ -154,8 +165,8 @@ sol.forEach(function(s,i){if(!s.o)s.o={a:s.a,b:s.b};s.x=1000+rnd(-5,5);s.z=90-i*
 thi.forEach(function(t,i){t.x=1000+rnd(-6,6);t.z=70-i*20;t.fl=0});
 P.x=1000;P.z=100;P.vy=0;cpx=1000;cpz=100;ci=0;CP=[100,25,-60,-120];helped=0;
 B=[[85,'কলকাতার রাস্তা। চারদিকে ক্ষুধার্ত মানুষ।',0],[10,'একজন শিশু তোমার দিকে তাকিয়ে আছে। E চেপে খাবার ভাগ করো।',0],[-75,'দূরে লঙ্গরখানার আলো!',0]];
-say('অধ্যায় ২: কলকাতার রাস্তা। লঙ্গরখানা পর্যন্ত পৌঁছাও।')}
-function fin(a,b){st='end';document.exitPointerLock&&document.exitPointerLock();var o=$('ov');o.innerHTML='<h1>'+a+'</h1><p>'+b+'</p><p style="color:#e8c35a;margin-top:18px">আবার খেলতে click করো</p>';o.style.display='flex'}
+say('অধ্যায় ২: কলকাতার রাস্তা। লঙ্গরখানা পর্যন্ত পৌঁছাও।');svWrite()}
+function fin(a,b){if(a=='লঙ্গরখানায় পৌঁছেছ')svBest();st='end';document.exitPointerLock&&document.exitPointerLock();var o=$('ov');o.innerHTML='<h1>'+a+'</h1><p>'+b+'</p><p style="color:#e8c35a;margin-top:18px">আবার খেলতে click করো</p>';o.style.display='flex'}
 var mc=$('mm').getContext('2d');
 function mm(){mc.clearRect(0,0,120,120);mc.fillStyle='rgba(63,134,184,.6)';if(!ch)mc.fillRect(0,60-68.5-P.z,120,17);
 function dot(x,z,c,r){var dx=x-P.x,dz=z-P.z;if(Math.abs(dx)>58||Math.abs(dz)>58)return;mc.fillStyle=c;mc.beginPath();mc.arc(60+dx,60+dz,r,0,7);mc.fill()}
@@ -172,5 +183,19 @@ var d=7.5,cp=Math.cos(pt);C.position.set(P.x-Math.sin(yaw)*cp*d+(Math.random()-.
 C.lookAt(P.x,P.y+1.8,P.z);
 $('bh').style.width=Math.max(0,P.hp)+'%';$('bf').style.width=P.fd+'%';$('bw').style.width=P.wt+'%';$('bs').style.width=P.st+'%';$('cmp').style.transform='rotate('+(-wr(Math.atan2((ch?1000:0)-P.x,(ch?-150:-170)-P.z)-yaw))+'rad)';
 $('dist').textContent=(ch?'লঙ্গরখানা: ':'কলকাতা: ')+Math.max(0,Math.round(P.z-(ch?-150:-170)))+' মি · পাথর '+P.sn;mm();var lo=P.hp<40?(40-P.hp)/40:0;$('vg').style.boxShadow='inset 0 0 140px rgba(170,0,0,'+lo*.9+')';R.render(S,C)}
+function pauseG(){if(st!='play')return;st='pause';$('rs').value=cfg.sens;$('rv2').value=cfg.vol;$('rl').checked=!!cfg.low;$('ps').style.display='flex';document.exitPointerLock&&document.exitPointerLock()}
+function resumeG(){$('ps').style.display='none';st='play';try{R.domElement.requestPointerLock()}catch(e){}}
+$('rr').onclick=resumeG;$('rx').onclick=function(){$('ps').style.display='none';st='idle';go()};
+$('rs').oninput=function(){cfg.sens=+this.value;saveCfg()};
+$('rv2').oninput=function(){cfg.vol=+this.value;if(MG.n)MG.n.gain.value=cfg.vol;saveCfg()};
+$('rl').onchange=function(){cfg.low=this.checked?1:0;saveCfg();applyG()};
+document.addEventListener('pointerlockchange',function(){if(!document.pointerLockElement&&st=='play')pauseG()});
+function applyG(){R.setPixelRatio(cfg.low?1:Math.min(devicePixelRatio,2));R.setSize(innerWidth,innerHeight);sun.castShadow=!cfg.low;gr.visible=!cfg.low&&!ch}
+var SV=null;try{SV=JSON.parse(localStorage.getItem('b43sv')||'null')}catch(e){}
+function svWrite(){try{localStorage.setItem('b43sv',JSON.stringify({ch:ch,x:cpx,z:cpz,ci:ci,h:helped,t:tm,best:SV&&SV.best}))}catch(e){}}
+function svBest(){try{var b=SV&&SV.best;if(!b||tm<b)b=Math.round(tm);SV={best:b};localStorage.setItem('b43sv',JSON.stringify({best:b}))}catch(e){}}
+function cont(ev){ev.stopPropagation();if(!ambOn){ambOn=1;amb()}reset();if(SV.ch)enterCity();P.x=SV.x;P.z=SV.z;cpx=SV.x;cpz=SV.z;ci=SV.ci;helped=SV.h||0;tm=SV.t||0;applyG();st='play';$('ov').style.display='none';try{R.domElement.requestPointerLock()}catch(e){}}
+(function(){if(!SV)return;var h='';if(SV.best)h+='<p class="k">সেরা সময়: '+SV.best+' সেকেন্ড</p>';if(SV.x!=null)h+='<button class="bt" id="ct">'+(SV.ch?'অধ্যায় ২-এর চেকপয়েন্ট থেকে চালিয়ে যাও':'চেকপয়েন্ট থেকে চালিয়ে যাও')+'</button>';$('sv').innerHTML=h;if($('ct'))$('ct').onclick=cont})();
+applyG();
 frame();
 </script></body></html>

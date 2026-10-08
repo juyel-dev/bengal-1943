@@ -16,6 +16,7 @@ WASD move, Mouse look (click to lock), Shift run (uses stamina), Space jump, C c
 - Checkpoints (you respawn instead of restarting), story beats along the way
 - Dogs and fast officers as extra threats; better character models (hair, swinging arms, rifles, dhoti)
 - Chapter 2: Calcutta streets at dusk, share food with hungry people (E), reach the langarkhana; ending depends on how many you helped
+- Pause menu (Esc): mouse sensitivity, volume, low-graphics mode; settings, checkpoint progress and best time are saved in the browser
 - Ambient wind, drone music, footsteps, low-health vignette
 
 `2d-prototype.html` is the first 2D prototype. Built with three.js (r128), no build step.
