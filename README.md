@@ -12,7 +12,9 @@ WASD move, Mouse look (click to lock), Shift run (uses stamina), Space jump, C c
 - Survival: health, hunger, thirst, stamina; drink from the river
 - Soldiers with vision cones (crouch to be harder to see), thieves who steal food, NPCs who help
 - Stealth tools: stun soldiers, lure them away with thrown stones
-- Compass arrow to Calcutta
+- Compass arrow and minimap (soldiers, thieves, river, goal)
+- Checkpoints (you respawn instead of restarting), story beats along the way
+- Ambient wind, drone music, footsteps, low-health vignette
 
 `2d-prototype.html` is the first 2D prototype. Built with three.js (r128), no build step.
 
