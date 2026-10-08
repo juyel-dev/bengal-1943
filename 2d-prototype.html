@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>বাংলা ১৯৪৩</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@500;700&display=swap" rel="stylesheet">
+<style>html,body{margin:0;height:100%;background:#0e0b08}
+canvas{display:block;width:100%;max-width:960px;margin:0 auto;aspect-ratio:16/9;max-height:100vh}</style></head>
+<body><canvas id="c" width="960" height="540"></canvas>
+<script>
+var c=document.getElementById('c'),x=c.getContext('2d'),W=960,H=540,WW=7000,G=450;
+var K={},st='intro',cam=0,t=0,msg='',msgT=0,AC,h,items,bushes,npcs,thieves,sold;
+var FN='"Noto Sans Bengali",sans-serif';
+function snd(f,d,ty){try{AC=AC||new AudioContext();var o=AC.createOscillator(),g=AC.createGain();o.type=ty||'sine';o.frequency.value=f;g.gain.value=.07;g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.connect(g);g.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(e){}}
+function say(m){msg=m;msgT=200}
+function start(){init();st='play'}
+addEventListener('keydown',function(e){K[e.code]=1;
+if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].indexOf(e.code)>-1)e.preventDefault();
+if(st!='play'){if(e.code=='Enter'||e.code=='Space')start();return}
+if(e.code=='KeyE')talk();if(e.code=='KeyJ')hit()});
+addEventListener('keyup',function(e){K[e.code]=0});
+c.addEventListener('pointerdown',function(){st!='play'?start():hit()});
+
+function init(){
+h={x:200,y:G,vx:0,vy:0,f:1,hp:100,fd:90,wt:90,at:0,hid:0,inv:0,kb:0};
+items=[];for(var i=0;i<22;i++)items.push({x:450+i*290+(i*137)%90,k:i%2?'w':'f',on:1});
+bushes=[900,1700,2500,3300,4200,5100,5900,6600].map(function(b){return{x:b}});
+npcs=[
+{x:700,c:'#7a5230',hat:'#e8dcb0',i:0,l:['ঘরে আর চাল নেই বাবা... সব নিয়ে গেছে।','এই নাও একটু ভাত। কলকাতার পথ পূর্বে, সাবধানে যেও।']},
+{x:2000,c:'#a05a6a',i:0,l:['সৈন্যরা এই পথে টহল দেয়। ঝোপে লুকিয়ে থাকো (S চাপো)।','এই জলটুকু নাও, আমার ছেলের জন্য রেখেছিলাম... তোমার বেশি দরকার।']},
+{x:4600,c:'#5a7a52',hat:'#e8dcb0',i:0,l:['কলকাতায় এখন ভিড়, রাস্তায় মানুষ না খেয়ে পড়ে আছে।','যাও, আর একটু পথ বাকি।']}];
+thieves=[1400,3000,5200].map(function(v){return{x:v,fl:0,gone:0}});
+sold=[[2300,2000,2700],[3800,3500,4100],[5600,5300,5900],[6400,6200,6700]].map(function(a){return{x:a[0],a:a[1],b:a[2],d:1,ch:0,cd:0}});
+cam=0;say('অয়ন ১৯৪৩ সালে আটকে গেছে। কলকাতার পথে এগোও।')}
+function near(a,r){return Math.abs(h.x-a.x)<r}
+function talk(){for(var i=0;i<npcs.length;i++){var n=npcs[i];if(near(n,80)){say(n.l[n.i]);
+if(n.i==1&&!n.g){n.g=1;i==0?h.fd=Math.min(100,h.fd+45):h.wt=Math.min(100,h.wt+45);snd(520,.15)}
+n.i=Math.min(1,n.i+1);return}}}
+function hit(){if(h.at>0)return;h.at=14;snd(130,.1,'square');
+thieves.forEach(function(th){if(!th.fl&&Math.sign(th.x-h.x)==h.f&&Math.abs(th.x-h.x)<70){th.fl=1;say('চোর পালিয়ে গেল!')}})}
+
+function upd(k){
+var run=K.ShiftLeft||K.ShiftRight,sp=run?4.2:2.6,mv=0;
+if(K.KeyA||K.ArrowLeft)mv=-1;if(K.KeyD||K.ArrowRight)mv=1;
+h.hid=0;if(K.KeyS||K.ArrowDown)bushes.forEach(function(b){if(near(b,45)&&h.y>=G)h.hid=1});
+if(h.hid)mv=0;if(mv)h.f=mv;
+h.x+=(mv*sp+h.kb)*k;h.kb*=.85;h.x=Math.max(30,Math.min(WW-30,h.x));
+if((K.Space||K.KeyW||K.ArrowUp)&&h.y>=G&&!h.hid){h.vy=-12.5;snd(320,.1)}
+h.vy+=.65*k;h.y+=h.vy*k;if(h.y>G){h.y=G;h.vy=0}
+h.at=Math.max(0,h.at-k);h.inv=Math.max(0,h.inv-k);
+var m=run&&mv?1.6:1;h.fd=Math.max(0,h.fd-.02*k*m);h.wt=Math.max(0,h.wt-.03*k*m);
+if(h.fd<=0||h.wt<=0)h.hp-=.06*k;
+items.forEach(function(it){if(it.on&&near(it,26)&&h.y>G-40){it.on=0;
+if(it.k=='f'){h.fd=Math.min(100,h.fd+30);say('ভাত পেলে (+খাবার)')}else{h.wt=Math.min(100,h.wt+35);say('জল পেলে (+পানি)')}snd(600,.12)}});
+thieves.forEach(function(th){if(th.gone)return;var d=h.x-th.x;
+if(th.fl){th.x-=Math.sign(d)*4*k;if(Math.abs(d)>800)th.gone=1;return}
+if(Math.abs(d)<260)th.x+=Math.sign(d)*2.2*k;
+if(Math.abs(d)<24&&h.y>G-30){h.fd=Math.max(0,h.fd-25);th.fl=1;say('চোর তোমার খাবার নিয়ে পালাল!');snd(150,.3,'sawtooth')}});
+sold.forEach(function(s){var d=h.x-s.x;s.cd-=k;
+if(s.ch){if(h.hid||Math.abs(d)>520)s.ch=0;else{s.d=Math.sign(d)||1;s.x+=s.d*3.3*k}}
+else{s.x+=s.d*1.1*k;if(s.x>s.b)s.d=-1;if(s.x<s.a)s.d=1;
+if(!h.hid&&s.cd<=0&&Math.abs(d)<300&&Math.sign(d)==s.d){s.ch=1;say('সৈন্য দেখে ফেলেছে! পালাও (Shift)!');snd(190,.3,'sawtooth')}}
+if(Math.abs(d)<26&&h.y>G-50&&h.inv<=0&&s.cd<=0){h.hp-=25;h.inv=60;h.kb=Math.sign(d)*10;s.ch=0;s.cd=180;snd(100,.25,'square')}});
+msgT-=k;cam=Math.max(0,Math.min(WW-W,h.x-W/2));
+if(h.hp<=0){st='lose';snd(90,.6)}
+if(h.x>=WW-120){st='win';snd(700,.4)}}
+
+function mx(a,b,p){return'rgb('+a.map(function(v,i){return Math.round(v+(b[i]-v)*p)}).join()+')'}
+function P(sx,y,o){var w=o.w?Math.sin(t*.3)*6:0;
+x.fillStyle=o.p;x.fillRect(sx-7+w,y-16,6,16);x.fillRect(sx+1-w,y-16,6,16);
+x.fillStyle=o.b;x.fillRect(sx-8,y-40,16,26);
+x.fillStyle='#d9a577';x.beginPath();x.arc(sx,y-48,8,0,7);x.fill();
+if(o.h){x.fillStyle=o.h;x.fillRect(sx-10,y-58,20,5);x.fillRect(sx-7,y-64,14,7)}
+if(o.a){x.strokeStyle='#d9a577';x.lineWidth=4;x.beginPath();x.moveTo(sx,y-34);x.lineTo(sx+o.f*28,y-30);x.stroke()}}
+function bar(l,v,col,y){x.fillStyle='rgba(0,0,0,.5)';x.fillRect(16,y,190,16);x.fillStyle=col;x.fillRect(16,y,190*v/100,16);
+x.fillStyle='#fff';x.font='600 12px '+FN;x.textAlign='left';x.fillText(l,22,y+12)}
+function txt(s,px,py,sz,col){x.fillStyle=col||'#f3e6c8';x.font='700 '+sz+'px '+FN;x.textAlign='center';x.fillText(s,px,py)}
+
+function draw(){
+var p=Math.min(1,h.x/WW),g=x.createLinearGradient(0,0,0,G);
+g.addColorStop(0,mx([110,165,215],[60,40,90],p));g.addColorStop(1,mx([245,215,150],[230,120,80],p));
+x.fillStyle=g;x.fillRect(0,0,W,H);
+x.fillStyle='#fff3c4';x.beginPath();x.arc(760-p*420,110+p*220,34,0,7);x.fill();
+x.fillStyle=mx([110,140,90],[50,60,60],p);x.beginPath();x.moveTo(0,G);
+for(var i=0;i<=W;i+=20){var wx=i+cam*.2;x.lineTo(i,G-60-Math.sin(wx*.006)*40-Math.sin(wx*.017)*15)}x.lineTo(W,G);x.fill();
+for(i=0;i<17;i++){var sx=i*430+120-cam*.6;if(sx<-120||sx>W+120)continue;
+x.fillStyle='#8a6a3b';x.fillRect(sx,G-42,72,42);x.fillStyle='#b89a52';x.beginPath();x.moveTo(sx-10,G-42);x.lineTo(sx+36,G-82);x.lineTo(sx+82,G-42);x.fill();
+x.fillStyle='#3b2a18';x.fillRect(sx+28,G-26,16,26);
+var tx=sx+230;x.fillStyle='#5a4326';x.fillRect(tx,G-80,6,80);x.fillStyle='#4f7a3a';x.beginPath();x.ellipse(tx+3,G-84,34,12,0,0,7);x.fill()}
+x.fillStyle='#5a4528';x.fillRect(0,G,W,H-G);x.fillStyle=mx([88,120,60],[40,60,40],p);x.fillRect(0,G-3,W,9);
+items.forEach(function(it){if(!it.on)return;var sx=it.x-cam,b=Math.sin(t*.1+it.x)*2;
+if(it.k=='f'){x.fillStyle='#6b4a2a';x.fillRect(sx-11,G-12+b,22,12);x.fillStyle='#fff';x.beginPath();x.ellipse(sx,G-13+b,10,6,0,0,7);x.fill()}
+else{x.fillStyle='#a8602f';x.beginPath();x.ellipse(sx,G-14+b,11,14,0,0,7);x.fill();x.fillStyle='#4aa3df';x.fillRect(sx-7,G-26+b,14,4)}});
+var sg=WW-100-cam;x.fillStyle='#5a4326';x.fillRect(sg,G-110,8,110);x.fillStyle='#e8dcb0';x.fillRect(sg-60,G-120,130,36);txt('কলকাতা →',sg+5,G-95,18,'#3b2a18');
+npcs.forEach(function(n){var sx=n.x-cam;P(sx,G,{b:n.c,p:'#e8e0cf',h:n.hat});if(near(n,80))txt('E',sx,G-78,16)});
+thieves.forEach(function(th){if(!th.gone)P(th.x-cam,G,{b:'#6a3a2a',p:'#2a2a2a',h:'#a33',w:1})});
+sold.forEach(function(s){var sx=s.x-cam;P(sx,G,{b:'#6b6b3a',p:'#4a4a2a',h:'#5a5a3a',w:1});if(s.ch)txt('!',sx,G-76,26,'#ff4a3a')});
+if(h.inv%10<5)P(h.x-cam,h.y,{b:'#2f6fb5',p:'#34405a',w:Math.abs(h.kb)<1&&(K.KeyA||K.KeyD||K.ArrowLeft||K.ArrowRight)&&!h.hid,a:h.at>0,f:h.f});
+bushes.forEach(function(b){var sx=b.x-cam;x.fillStyle=h.hid&&near(b,45)?'#2f5a2a':'#3c6e32';
+x.beginPath();x.ellipse(sx,G-18,48,34,0,0,7);x.fill();x.beginPath();x.ellipse(sx-26,G-10,28,22,0,0,7);x.fill();x.beginPath();x.ellipse(sx+28,G-10,28,22,0,0,7);x.fill()});
+x.fillStyle='rgba(15,10,50,'+p*.4+')';x.fillRect(0,0,W,H);
+bar('স্বাস্থ্য',h.hp,'#d9534f',14);bar('খাবার',h.fd,'#e0a82e',36);bar('পানি',h.wt,'#4aa3df',58);
+x.fillStyle='rgba(0,0,0,.5)';x.fillRect(W/2-150,H-22,300,8);x.fillStyle='#e8dcb0';x.fillRect(W/2-150,H-22,300*p,8);
+if(msgT>0){x.fillStyle='rgba(0,0,0,.6)';x.fillRect(W/2-330,20,660,42);txt(msg,W/2,48,19)}
+if(st!='play')ov()}
+function ov(){x.fillStyle='rgba(10,7,4,.82)';x.fillRect(0,0,W,H);
+if(st=='intro'){txt('বাংলা ১৯৪৩',W/2,130,54,'#e8c35a');
+txt('২০২৬ সাল। ছাত্র অয়নের time machine ভুল সময়ে থেমে গেল।',W/2,200,21);
+txt('চারদিকে দুর্ভিক্ষ। খাবার নেই, পানি নেই, সৈন্যরা টহল দিচ্ছে।',W/2,236,21);
+txt('লক্ষ্য: বেঁচে থেকে কলকাতার পথে পৌঁছানো।',W/2,272,21);
+txt('A/D হাঁটা · Shift দৌড় · Space লাফ · S ঝোপে লুকানো · E কথা · J বা click আঘাত',W/2,340,17,'#b9a97f')}
+else if(st=='win'){txt('তুমি কলকাতায় পৌঁছেছ',W/2,200,44,'#e8c35a');txt('কিন্তু লড়াই সবে শুরু। Chapter 2 আসছে...',W/2,250,22)}
+else{txt('তুমি আর পারলে না',W/2,200,44,'#d9534f');txt('ইতিহাসে এমন লক্ষ মানুষ হারিয়ে গেছে।',W/2,250,22)}
+txt(st=='intro'?'শুরু করতে Enter বা click':'আবার খেলতে Enter বা click',W/2,420,22,'#e8c35a')}
+
+var last=0;function L(ts){var k=Math.min(2,(ts-last)/16.67||1);last=ts;t+=k;if(st=='play')upd(k);draw();requestAnimationFrame(L)}
+init();requestAnimationFrame(L);
+</script></body></html>
